@@ -1,0 +1,84 @@
+# Rgc11 screening threshold pack (per-role, per-market POLICY, never engine code).
+#
+# This file carries the monetary thresholds a gift or entertainment declaration is screened
+# against, keyed by (role, market, kind). Two kinds of thing live here, and they are different:
+#
+#   * The INSTRUMENTS in `citations` name real, published conduct-rule sources so a reviewer can
+#     trace a flag to its basis. Nothing in this repo is legal advice, and no snippet is a
+#     verbatim quotation; each is a short paraphrase.
+#   * The THRESHOLDS in `thresholds` are ADOPTER-OWNED POLICY, not quoted regulatory limits. They
+#     are config with the shipped defaults below (practice B4), so a bank tightens its own
+#     gifts-and-entertainment policy by editing this file (or pointing `screening_pack_path` at
+#     its own), never by editing the screening engine. Amounts are in MINOR units (cents).
+#
+# A combination with no threshold here is UNCONFIGURED, and the engine treats an unconfigured
+# test as a gap to flag for review, never as a pass. Every party and identifier elsewhere in the
+# repo is obviously fictional; the instrument names below are the one place real sources appear,
+# because a citation that cannot be named is worthless to a conduct officer.
+
+version: "2026-08-08"
+
+citations:
+  fca_sysc_10a_conflicts:
+    title: >-
+      FCA Handbook SYSC 10 and SYSC 10A, managing conflicts of interest and recording personal
+      account dealing and inducements
+    snippet: >-
+      A firm must identify, record and manage conflicts of interest, including gifts and
+      inducements and staff personal-account dealing, so that they do not damage a client's
+      interests. Gifts above a firm-set threshold require review and may require refusal.
+  mas_notice_conduct:
+    title: >-
+      MAS Guidelines on Individual Accountability and Conduct, and the gifts and entertainment
+      controls firms are expected to maintain
+    snippet: >-
+      A financial institution is expected to maintain policies governing gifts, entertainment
+      and outside interests, with monetary thresholds above which a declaration must be reviewed
+      and approved rather than merely recorded.
+
+# role x market x kind -> threshold. Roles and markets are the adopter's own taxonomy.
+thresholds:
+  - role: trader
+    market: SG
+    kind: gift
+    threshold_minor: 10000        # SGD 100.00: a trader faces a stricter gift limit
+    currency: SGD
+    severity: high
+    citation: mas_notice_conduct
+    remediation: >-
+      Refuse or return the gift, or obtain compliance approval before acceptance; record the
+      decision on the register.
+  - role: trader
+    market: SG
+    kind: entertainment
+    threshold_minor: 25000        # SGD 250.00
+    currency: SGD
+    severity: medium
+    citation: mas_notice_conduct
+    remediation: Obtain line-manager and compliance approval before accepting.
+  - role: adviser
+    market: SG
+    kind: gift
+    threshold_minor: 20000        # SGD 200.00
+    currency: SGD
+    severity: medium
+    citation: mas_notice_conduct
+    remediation: Obtain compliance approval before acceptance.
+  - role: trader
+    market: UK
+    kind: gift
+    threshold_minor: 5000         # GBP 50.00
+    currency: GBP
+    severity: high
+    citation: fca_sysc_10a_conflicts
+    remediation: >-
+      Refuse or return the gift, or obtain compliance approval; the personal-account-dealing and
+      inducements record must reflect the outcome.
+  - role: adviser
+    market: UK
+    kind: entertainment
+    threshold_minor: 15000        # GBP 150.00
+    currency: GBP
+    severity: medium
+    citation: fca_sysc_10a_conflicts
+    remediation: Obtain compliance approval before accepting.
