@@ -69,7 +69,7 @@ A2A feed Cmp1 reads.
 |---|---|---|
 | The restricted list, dealing blackouts and MNPI holdings | **Rgc11 (this repo)** | OWNED here, schema and all (`domain/reference_models.py`), and served with an `as_of` over `GET /v1/reference/snapshot`. |
 | Trade and communications surveillance, market-abuse investigation | **Cmp1** trade and comms surveillance (`trade-comms-surveillance`) | it CONSUMES this repo's reference snapshot over A2A. This repo screens declarations; it does not watch order flow or chat. |
-| Human review and maker-checker | **Hrz7** human review console | `ReviewRouterPort` over the shared `review-kit` (`HRZ_HUMAN_REVIEW_URL`). This repo produces escalations; it does not render a queue. |
+| Human review and maker-checker | **Hrz7** human review console | `ReviewRouterPort` over the shared `review-kit` (`HUMAN_REVIEW_URL`). This repo produces escalations; it does not render a queue. |
 | Model and agent promotion | **Hrz4** AI quality and model risk | `eval/run_eval.py --mode gate` asks Hrz4 (`CONFLICTSPAD_QUALITY_URL`); the offline smoke mode never promotes. |
 | Traces and the immutable audit sink | **Hrz5** agent observability | `AuditSinkPort` and `ObservabilityTracerPort`; `OTEL_EXPORTER_OTLP_ENDPOINT` selects the Hrz5 collector. |
 | Agent discovery and entitlements | **Hrz3** agent registry | this agent publishes a card; the registry owns discovery. |

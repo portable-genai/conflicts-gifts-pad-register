@@ -40,7 +40,7 @@ Four things, and none of them is code here:
 3. **The inbound feeds.** `DeclarationFeedPort` (employee declarations, free text plus structured
    fields) and `BrokerageFeedPort` (personal-account trades and holdings, already structured).
    These are deliberately separate ports because they come from different systems of record.
-4. **The review console.** An Hrz7 deployment reachable at `HRZ_HUMAN_REVIEW_URL`. The managed
+4. **The review console.** An Hrz7 deployment reachable at `HUMAN_REVIEW_URL`. The managed
    router REFUSES to swallow an escalation when this is empty, so a fork cannot ship rule R8
    unwired and green.
 
