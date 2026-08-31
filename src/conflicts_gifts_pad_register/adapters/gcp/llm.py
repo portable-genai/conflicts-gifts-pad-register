@@ -9,6 +9,11 @@ from __future__ import annotations
 
 from ...config import Settings
 
+#: The model this adapter calls. A module constant rather than a literal inside the call: the
+#: provenance banner reads the id off the BINDING, so a model named only at a call site is a
+#: model the served UI cannot state. One name, one place, read by both.
+_MODEL = "gemini-2.5-flash"
+
 
 class VertexLlmAdapter:
     """Generate narration / entity resolution via Vertex AI in the residency region."""
@@ -22,6 +27,6 @@ class VertexLlmAdapter:
         # Lazy import: absent in the offline profile and in CI.
         from vertexai.generative_models import GenerativeModel
 
-        model = GenerativeModel("gemini-2.5-flash")
+        model = GenerativeModel(_MODEL)
         response = model.generate_content(prompt)
         return str(response.text)
