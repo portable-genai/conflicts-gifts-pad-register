@@ -87,7 +87,7 @@ both discarded on failure, and with the offline stub bound every consequential f
 identical. The offline eval (`eval/run_eval.py --mode smoke`) scores `decision_accuracy`,
 `extraction_accuracy`, `groundedness` and `pii_safety` on every change, against the dataset's own
 labelled oracle rather than the pipeline's verdict. What is NOT yet in place: the managed adapter
-names `gemini-2.5-flash` as a literal rather than a confirmed and configurable pin, there is no
+names `gemini-3.5-flash` as a literal rather than a confirmed and configurable pin, there is no
 token budget, rate limit or kill switch, no live-model eval run has been registered with the Hrz4
 promotion gate, and prompt-injection screening through Hrz1 is not bound. Until those close, the
 managed model path is not production-cleared and the deterministic path is what should be relied
