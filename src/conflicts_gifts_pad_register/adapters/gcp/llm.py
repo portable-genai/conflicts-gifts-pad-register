@@ -12,7 +12,7 @@ from ...config import Settings
 #: The model this adapter calls. A module constant rather than a literal inside the call: the
 #: provenance banner reads the id off the BINDING, so a model named only at a call site is a
 #: model the served UI cannot state. One name, one place, read by both.
-_MODEL = "gemini-2.5-flash"
+_MODEL = "gemini-3.5-flash"
 
 
 class VertexLlmAdapter:

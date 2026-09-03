@@ -43,7 +43,7 @@ record; the model is a bounded, replaceable component with two narrow jobs.
 | Profile | LLM adapter | Behaviour |
 |---|---|---|
 | `local` | `adapters/local/llm.py` | Deterministic and SDK-free. For an entity prompt it extracts the first `(FICTIONAL)`-marked entity from the text and returns empty when it finds none; for a rationale prompt it echoes the deterministic baseline the service already computed. It only ever restates what it was given, so it cannot produce a number the engine did not. |
-| `gcp` | `adapters/gcp/llm.py` | Vertex AI via `vertexai.generative_models.GenerativeModel`, imported lazily inside the method. The model id is the literal `"gemini-2.5-flash"` in the adapter. |
+| `gcp` | `adapters/gcp/llm.py` | Vertex AI via `vertexai.generative_models.GenerativeModel`, imported lazily inside the method. The model id is the literal `"gemini-3.5-flash"` in the adapter. |
 | `onprem` | `adapters/onprem/llm.py` | Fail-fast placeholder: raises, naming the client-hosted model gateway to bind, and noting that screening does not depend on it. |
 
 The offline stub deliberately does not invent prose beyond the facts. A stub that wrote freely
@@ -52,7 +52,7 @@ would stop exercising the grounding check the managed path depends on.
 
 ## Remaining controls (TODO, repo owner)
 
-- **Model id, version and region** (P-07): `"gemini-2.5-flash"` is a hard-coded literal in
+- **Model id, version and region** (P-07): `"gemini-3.5-flash"` is a hard-coded literal in
   `adapters/gcp/llm.py`, not configuration and not a pinned version. Lift it into
   `config/settings.yaml` behind a `CONFLICTSPAD_`-prefixed variable, confirm the id is served in
   your deployment region, pin the exact model and version, and record it here. Gemini model ids
