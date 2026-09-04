@@ -128,7 +128,8 @@ class ScreeningResult:
 class ConflictAssessment:
     """The consequential, escalatable artifact the register produces for one declaration.
 
-    Carries the fields the Hrz7 review payload reads (``subject``, ``summary``, ``severity``,
+    Carries the fields the human-review-console review payload reads (``subject``, ``summary``,
+    ``severity``,
     ``citations``) so an escalation routes without a second mapping. ``verdict``, ``severity``
     and ``requires_human_review`` come from the deterministic engine; ``summary`` is the model's
     cited narration of that already-fixed verdict and may only restate engine findings.

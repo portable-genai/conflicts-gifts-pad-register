@@ -1,4 +1,4 @@
-"""FastAPI application for Conflicts, Gifts and PAD Register (Rgc11).
+"""FastAPI application for Conflicts, Gifts and PAD Register (conflicts-gifts-pad-register).
 
 Import-safe (the Container is built at request time, never at import; only ``Settings`` is read
 at import, to learn which identity adapter is bound, and no adapter is constructed), identity is
@@ -288,7 +288,8 @@ def assess(
     """Screen one declaration; the tenant and actor are the verified principal, never the body.
 
     The deterministic engine decides the verdict and severity; the model only narrates it. Rule
-    R8: an assessment that sets ``requires_human_review`` is ROUTED to the Hrz7 console here, in
+    R8: an assessment that sets ``requires_human_review`` is ROUTED to the human-review-console
+    here, in
     the same request that produced it. Setting the flag is not the escalation; routing is. The
     assessment is written to the tenant-scoped register before it is returned.
 
@@ -347,11 +348,13 @@ def get_assessment(
     tags=["a2a"],
 )
 def reference_snapshot(as_of: str) -> ReferenceSnapshotResponse:
-    """Serve the as-of restricted / blackout / MNPI snapshot Cmp1 reads (rule R8 A2A feed).
+    """Serve the as-of restricted / blackout / MNPI snapshot trade-comms-surveillance reads (rule R8
+    A2A feed).
 
     This is a SERVICE-to-service feed, so it is guarded by ``require_service_caller`` rather than
     by end-user identity: the reference data is not tenant-scoped and carries no personal data,
-    and Cmp1 authenticates as a trusted caller. ``as_of`` makes the snapshot replayable.
+    and trade-comms-surveillance authenticates as a trusted caller. ``as_of`` makes the snapshot
+    replayable.
     """
     snapshot = _container().reference_store.snapshot(as_of)
     return ReferenceSnapshotResponse.from_domain(snapshot)

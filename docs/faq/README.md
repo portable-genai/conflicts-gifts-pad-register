@@ -13,9 +13,9 @@ specific audience; skim the one that matches your role.
 | [compliance-faq.md](compliance-faq.md) | Compliance / model risk / second line | conduct posture, maker-checker, residency, retention, model-risk evidence |
 
 These FAQs deliberately do **not** re-document capabilities owned by sibling systems in the GRC
-catalog. Where a concern belongs to another repo (the human-review console Hrz7, the eval
-platform Hrz4, the observability and WORM sink Hrz5, the agent registry Hrz3, the guardrail
-gateway Hrz1, the enterprise knowledge base Hrz2, and the surveillance investigator Cmp1 that
+catalog. Where a concern belongs to another repo (the human-review console `human-review-console`, the eval
+platform `model-quality-gate`, the observability and WORM sink `agent-observability`, the agent registry `agent-registry`, the guardrail
+gateway `agent-guardrail-gateway`, the enterprise knowledge base `enterprise-knowledge-base`, and the surveillance investigator `trade-comms-surveillance` that
 CONSUMES this register's reference feed), the FAQ points at it and explains the boundary rather
 than duplicating it. See [features-faq.md](features-faq.md) for the full "what this repo owns vs
 what it integrates" map.

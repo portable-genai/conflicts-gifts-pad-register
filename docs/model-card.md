@@ -1,4 +1,4 @@
-# Model card: Conflicts, Gifts and PAD Register (Rgc11)
+# Model card: Conflicts, Gifts and PAD Register (`conflicts-gifts-pad-register`)
 
 This is a STARTER model card. It records the model boundary as built and the controls that must
 be completed before a managed deployment. The deterministic screening engine is the system of
@@ -35,7 +35,7 @@ record; the model is a bounded, replaceable component with two narrow jobs.
 - Personal data is masked before the audit write, before a review payload leaves the process, and
   before a tool result can enter a model's context (`domain/pii.py`, `agent/tools.py`,
   `adapters/_review_payload.py`).
-- Every flagged assessment sets `requires_human_review` and is routed to Hrz7 (rule R8) in the
+- Every flagged assessment sets `requires_human_review` and is routed to `human-review-console` (rule R8) in the
   same call; nothing auto-executes, and nothing auto-approves.
 
 ## Adapters and profiles
@@ -67,9 +67,9 @@ would stop exercising the grounding check the managed path depends on.
   to the deterministic summary), but nothing yet lets an operator disable the model deliberately.
 - **Evaluation of the live model**: the offline eval scores the deterministic pipeline with the
   stub bound against the golden cases, including `extraction_accuracy` for the entity resolution
-  and `groundedness` for the rationale. Add a managed-profile run, registered with the Hrz4
+  and `groundedness` for the rationale. Add a managed-profile run, registered with the `model-quality-gate`
   promotion gate (P-08, rule R5), that scores the same metrics with the real model bound.
-- **Prompt-injection screening** (rule R1): the Hrz1 guardrail gateway is not bound. An employee
+- **Prompt-injection screening** (rule R1): the `agent-guardrail-gateway` is not bound. An employee
   writes the declaration narrative the entity prompt is built from, so that text is untrusted
   input by definition. Screen it before it reaches `IngestionService`, and fail closed to the
   structured field when the screen is unavailable.

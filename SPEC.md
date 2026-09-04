@@ -1,4 +1,4 @@
-# SPEC: Conflicts, Gifts and PAD Register (Rgc11)
+# SPEC: Conflicts, Gifts and PAD Register (`conflicts-gifts-pad-register`)
 
 Locked decisions, pinned stack, contracts. This document is the deepest authority on intent.
 
@@ -24,9 +24,9 @@ gift/entertainment thresholds from a fail-closed pack (`rulepacks/screening.yaml
 policy). An unconfigured threshold is a gap that flags for review, never a pass. Each flagged
 declaration becomes a `ConflictAssessment` (verdict, severity, fired rules, citations) that is
 written to a tenant-scoped register, narrated by a grounded, schema-validated model that may only
-restate engine findings, and routed to Hrz7 for human sign-off. The restricted-list / blackout /
-MNPI reference store is Rgc11-owned DATA (not code) and is served with an `as_of` over an
-S2S-authenticated A2A feed (`GET /v1/reference/snapshot`) that Cmp1 consumes.
+restate engine findings, and routed to `human-review-console` for human sign-off. The restricted-list / blackout /
+MNPI reference store is `conflicts-gifts-pad-register`-owned DATA (not code) and is served with an `as_of` over an
+S2S-authenticated A2A feed (`GET /v1/reference/snapshot`) that `trade-comms-surveillance` consumes.
 
 ## Contracts
 - **Identity**: a request's actor is a server-verified `Principal`; the client-supplied actor is
@@ -45,7 +45,7 @@ S2S-authenticated A2A feed (`GET /v1/reference/snapshot`) that Cmp1 consumes.
   may narrate the fixed verdict and resolve a counterparty entity from free text, but never
   produces a number or a verdict.
 - **Maker-checker (P-06) and routing (R8)**: a HIGH/CRITICAL result sets
-  `requires_human_review=True` AND is routed through `ReviewRouterPort` to the Hrz7 console in the
+  `requires_human_review=True` AND is routed through `ReviewRouterPort` to the `human-review-console` in the
   same request. The flag alone is not the escalation. The response carries `review_ref`, so a
   caller can tell a routed escalation from one that stopped here. The managed adapter refuses to
   run with no console configured rather than swallowing the escalation.
@@ -88,7 +88,7 @@ S2S-authenticated A2A feed (`GET /v1/reference/snapshot`) that Cmp1 consumes.
   resolved server-side and the resolved headers are attached afterwards. The service credential
   is read from the server environment only. Framing and CORS are allowlists that refuse a
   wildcard however it is written, and an empty allowlist denies rather than opening up.
-- **Eval**: `--mode smoke` is the offline pre-merge check; `--mode gate` is the Hrz4 promotion
+- **Eval**: `--mode smoke` is the offline pre-merge check; `--mode gate` is the `model-quality-gate` promotion
   authority. The gate fails closed.
 - **Tests**: split into `unit`, `contract` and `integration`. The offline gate runs the first
   two; every integration module is marked, and that marking is itself enforced.

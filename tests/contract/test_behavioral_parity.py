@@ -123,12 +123,15 @@ def test_the_offline_outbox_flushes_the_payload_the_managed_router_would_submit(
 
 
 def test_the_payload_that_reaches_the_wire_is_redacted_whichever_family_built_it() -> None:
-    """Hrz7 is a shared sink, so this holds for every family, not only the one under demo."""
+    """human-review-console is a shared sink, so this holds for every family, not only the one under
+    demo.
+    """
     _container, result = _assess(sample_cases.FLAGGED_DECLARATION)
     payload = repr(
         result_to_review(result, maker=sample_cases.ACTOR, tenant=sample_cases.TENANT).to_payload()
     )
-    # The employee email travels on the subject; redaction must mask it before Hrz7 sees it.
+    # The employee email travels on the subject; redaction must mask it before human-review-console
+    # sees it.
     assert sample_cases.FLAGGED_DECLARATION.employee not in payload
     assert "REDACTED" in payload
 

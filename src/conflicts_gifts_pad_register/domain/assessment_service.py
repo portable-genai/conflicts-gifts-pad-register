@@ -12,8 +12,9 @@ The pipeline for one declaration:
 
 The model has no say in the verdict, the severity or whether review is required. Its narration is
 accepted only when it is GROUNDED in the engine's findings (no invented figure), and otherwise a
-deterministic summary is used. Routing to Hrz7 (rule R8) happens on the driving surfaces (API,
-CLI, agent), in the same call that produced the result, exactly as the reference build does.
+deterministic summary is used. Routing to human-review-console (rule R8) happens on the driving
+surfaces (API, CLI, agent), in the same call that produced the result, exactly as the reference
+build does.
 
 Pure domain code: ports and the deterministic engine come in by constructor injection; no SDK.
 """

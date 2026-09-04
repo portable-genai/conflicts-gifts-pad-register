@@ -1,4 +1,4 @@
-# Conflicts, Gifts and PAD Register (Rgc11) serving image.
+# Conflicts, Gifts and PAD Register (conflicts-gifts-pad-register) serving image.
 #
 # Supply-chain hardening (practices checks D1/D2/D4): the base image is DIGEST-pinned so a
 # re-pushed tag cannot change what ships, dependencies come from the committed lockfile rather
