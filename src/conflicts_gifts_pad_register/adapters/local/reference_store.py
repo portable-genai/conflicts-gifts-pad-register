@@ -1,10 +1,10 @@
 """Local ReferenceStorePort: an SDK-free in-memory restricted / blackout / MNPI store.
 
 The offline stand-in for the managed reference store (BigQuery on GCP). It holds every entry with
-its effective window and builds a :class:`ReferenceSnapshot` for a given ``as_of`` by keeping
-only the entries whose window covers that date, so replaying the same ``as_of`` reproduces the
-same snapshot byte for byte. This is the data Cmp1 reads over A2A, so the offline adapter and the
-A2A endpoint serve exactly the same shape.
+its effective window and builds a :class:`ReferenceSnapshot` for a given ``as_of`` by keeping only
+the entries whose window covers that date, so replaying the same ``as_of`` reproduces the same
+snapshot byte for byte. This is the data trade-comms-surveillance reads over A2A, so the offline
+adapter and the A2A endpoint serve exactly the same shape.
 """
 
 from __future__ import annotations

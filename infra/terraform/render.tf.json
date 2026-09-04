@@ -3,6 +3,6 @@
     "render_region": "asia-southeast1",
     "render_package_name": "conflicts_gifts_pad_register",
     "render_env_prefix": "CONFLICTSPAD",
-    "render_catalog_id": "Rgc11"
+    "render_repository": "conflicts-gifts-pad-register"
   }
 }

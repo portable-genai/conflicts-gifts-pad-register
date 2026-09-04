@@ -1,9 +1,10 @@
-"""ReferenceStorePort: the restricted-list / blackout / MNPI store, the data Cmp1 reads.
+"""ReferenceStorePort: the restricted-list / blackout / MNPI store, the data
+trade-comms-surveillance reads.
 
-Rgc11 OWNS this reference data, so it owns its schema: Cmp1
-(``trade-comms-surveillance``) consumes an ``as_of`` snapshot of it over A2A and its adapter
-conforms to what this port produces. Every entry carries an effective window, and
-:meth:`snapshot` returns exactly the entries whose window covers a given date, so replaying the
+conflicts-gifts-pad-register OWNS this reference data, so it owns its schema:
+trade-comms-surveillance (``trade-comms-surveillance``) consumes an ``as_of`` snapshot of it over
+A2A and its adapter conforms to what this port produces. Every entry carries an effective window,
+and :meth:`snapshot` returns exactly the entries whose window covers a given date, so replaying the
 same ``as_of`` reproduces the same snapshot byte for byte.
 
 The ``gcp`` adapter is BigQuery in the residency region; the ``local`` adapter is an SDK-free

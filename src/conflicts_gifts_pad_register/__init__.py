@@ -1,4 +1,4 @@
-"""Conflicts, Gifts and PAD Register (Rgc11).
+"""Conflicts, Gifts and PAD Register (conflicts-gifts-pad-register).
 
 Conflicts, gifts and personal-account-dealing register with deterministic screening.
 

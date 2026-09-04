@@ -64,12 +64,12 @@ CLEAR or FLAGGED outcome, the severity and the escalation are identical. The mod
 counterparty enrichment label and the prose of the rationale, and nothing else. See
 [`../model-card.md`](../model-card.md).
 
-### What happens to the reference feed Cmp1 depends on?
+### What happens to the reference feed `trade-comms-surveillance` depends on?
 
 It moves with you, because it is a data contract rather than a platform feature: an effective
 window per entry, and `snapshot(as_of)` returning exactly the entries whose window covers that
 date. Implement `ReferenceStorePort` on your own store, keep the response shape in
-`api/schemas.py` stable, and Cmp1's adapter does not change. Replaying the same `as_of` must
+`api/schemas.py` stable, and `trade-comms-surveillance`'s adapter does not change. Replaying the same `as_of` must
 still reproduce the same snapshot byte for byte, which is the property a market-abuse
 investigation relies on years later.
 

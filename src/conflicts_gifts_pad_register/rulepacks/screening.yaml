@@ -1,4 +1,4 @@
-# Rgc11 screening threshold pack (per-role, per-market POLICY, never engine code).
+# conflicts-gifts-pad-register screening threshold pack (per-role, per-market POLICY, never engine code).
 #
 # This file carries the monetary thresholds a gift or entertainment declaration is screened
 # against, keyed by (role, market, kind). Two kinds of thing live here, and they are different:

@@ -11,9 +11,9 @@ the console script, so the `screen` command is renamed with it), the `CONFLICTSP
 (including the bare token that `infra/terraform/render.tf.json` carries, so Terraform sets the
 same variable names on the service), the Terraform `name_prefix` resource stem (`rgc11-svc`) and
 the distribution / git id in one pass. Preview with `--dry-run`, apply with `--yes`, then
-recreate the venv, `make install`, and run `make gate`. The catalog id `Rgc11` is left alone
+recreate the venv, `make install`, and run `make gate`. The catalog id `conflicts-gifts-pad-register` is left alone
 unless you pass `--catalog-id`, so a fork stays traceable to the entry it descends from and to
-the reference feed Cmp1 knows it by. The script does the mechanical rename; the human decisions
+the reference feed `trade-comms-surveillance` knows it by. The script does the mechanical rename; the human decisions
 (the threshold pack, the reference data, region, IdP, eval golden set) are the checklist in
 `ADOPTING.md`.
 
@@ -40,7 +40,7 @@ Four things, and none of them is code here:
 3. **The inbound feeds.** `DeclarationFeedPort` (employee declarations, free text plus structured
    fields) and `BrokerageFeedPort` (personal-account trades and holdings, already structured).
    These are deliberately separate ports because they come from different systems of record.
-4. **The review console.** An Hrz7 deployment reachable at `HUMAN_REVIEW_URL`. The managed
+4. **The review console.** An `human-review-console` deployment reachable at `HUMAN_REVIEW_URL`. The managed
    router REFUSES to swallow an escalation when this is empty, so a fork cannot ship rule R8
    unwired and green.
 
@@ -104,7 +104,7 @@ for your policy is an adoption step.
 
 [`../practices-audit.md`](../practices-audit.md) carries the per-check verdict and the work list.
 The three that matter most before production: implementing the managed store and feed adapters
-(nothing deploys until `managed_readiness.py` is empty), binding the Hrz1 guardrail gateway
+(nothing deploys until `managed_readiness.py` is empty), binding the `agent-guardrail-gateway`
 (needed before untrusted declaration narrative reaches the model), and registering this repo's
-metric bundle with Hrz4 so `eval/run_eval.py --mode gate` has an authority to ask. The Terraform
+metric bundle with `model-quality-gate` so `eval/run_eval.py --mode gate` has an authority to ask. The Terraform
 stack is written, validated and tested against a mocked provider; it has never been applied.

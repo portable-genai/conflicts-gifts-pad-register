@@ -33,13 +33,13 @@ from a credential. `CONFLICTSPAD_S2S_TOKEN` authenticates a calling SERVICE and 
 names and fails the build if a credential reappears at any depth, because it did once: setting
 the token switched the guard off for the end-user routes it was protecting.
 
-### Who can read the reference feed Cmp1 consumes?
+### Who can read the reference feed `trade-comms-surveillance` consumes?
 
 `GET /v1/reference/snapshot` is the one A2A route, and it sits behind
 `require_service_caller`, so it is service-authenticated rather than open. It is the most
 sensitive surface in the repo: an MNPI holding list names which employees hold inside
 information on which issuers, and a restricted list leaks deal flow. Treat its S2S credential as
-a market-abuse control, not an integration detail, and keep the outbound Cmp1 allowlist narrow.
+a market-abuse control, not an integration detail, and keep the outbound `trade-comms-surveillance` allowlist narrow.
 
 ### Where does personal data go?
 
@@ -64,8 +64,7 @@ rationale for an ALREADY-FIXED verdict. The entity reply is validated against
 `COUNTERPARTY_SCHEMA` and DISCARDED on any failure, falling back to the structured
 `counterparty` field, so a bad reply changes an enrichment label and never a screening input.
 The rationale is checked by `is_grounded` (`domain/assessment_service.py`) and replaced with the
-deterministic summary if it invents a figure. Prompt-injection screening through the Hrz1
-guardrail gateway is **not** wired yet, so untrusted declaration narratives should be treated as
+deterministic summary if it invents a figure. Prompt-injection screening through the `agent-guardrail-gateway` is **not** wired yet, so untrusted declaration narratives should be treated as
 hostile input until it is (rule R1 in `COMPLIANCE.md`).
 
 ### How is the audit trail protected?
@@ -93,10 +92,9 @@ a regular expression cannot tell apart.
 
 - **Login.** This repo authenticates nobody itself: the platform in front of it does, and the UI
   forwards the assertion without parsing or trusting a parsed copy.
-- **Injection defence and output filtering.** Owned by Hrz1; not bound yet.
-- **The review queue.** Owned by Hrz7; this repo produces escalations and routes them.
-- **Trade and communications surveillance.** Owned by Cmp1. This repo publishes the reference
+- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; not bound yet.
+- **The review queue.** Owned by `human-review-console`; this repo produces escalations and routes them.
+- **Trade and communications surveillance.** Owned by `trade-comms-surveillance`. This repo publishes the reference
   snapshot it screens against; it does not watch order flow or chat.
 - **Network egress control.** VPC-SC governs access to Google APIs across perimeters, not
-  arbitrary internet egress. The private-egress rule that lets this service reach the Hrz7
-  console and nothing else is an adopter network decision, called out in `COMPLIANCE.md` P-01.
+  arbitrary internet egress. The private-egress rule that lets this service reach the `human-review-console` and nothing else is an adopter network decision, called out in `COMPLIANCE.md` P-01.

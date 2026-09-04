@@ -42,7 +42,7 @@ identical. See [`../model-card.md`](../model-card.md).
   does not price is a GAP that flags for review, never a pass. Adding a market you have not
   priced cannot wave its gifts through.
 - **It will not auto-approve a flag.** A FLAGGED assessment sets `requires_human_review` and is
-  ROUTED to the Hrz7 console in the same call that produced it (rule R8), on every surface.
+  ROUTED to the `human-review-console` in the same call that produced it (rule R8), on every surface.
 - **It will not start on a broken policy pack.** An unreadable pack, an unknown declaration kind,
   a limit citing an undefined citation id or a limit with no threshold raises `ScreeningPackError`
   at load. A screening gate on a silently empty rule set would wave everything through.
@@ -61,20 +61,20 @@ Five, and they behave the same because they share one domain service built throu
 `/.well-known/agent-card.json`), the embeddable `ui/` micro-frontend, and the eval harness. Each
 routes escalations in the same call, so rule R8 does not hold on four surfaces out of five.
 There is a sixth, non-decisioning surface: `GET /v1/reference/snapshot`, the service-authenticated
-A2A feed Cmp1 reads.
+A2A feed `trade-comms-surveillance` reads.
 
 ### What does this repo own, and what does it integrate?
 
 | Concern | Owner | How this repo touches it |
 |---|---|---|
-| The restricted list, dealing blackouts and MNPI holdings | **Rgc11 (this repo)** | OWNED here, schema and all (`domain/reference_models.py`), and served with an `as_of` over `GET /v1/reference/snapshot`. |
-| Trade and communications surveillance, market-abuse investigation | **Cmp1** trade and comms surveillance (`trade-comms-surveillance`) | it CONSUMES this repo's reference snapshot over A2A. This repo screens declarations; it does not watch order flow or chat. |
-| Human review and maker-checker | **Hrz7** human review console | `ReviewRouterPort` over the shared `review-kit` (`HUMAN_REVIEW_URL`). This repo produces escalations; it does not render a queue. |
-| Model and agent promotion | **Hrz4** AI quality and model risk | `eval/run_eval.py --mode gate` asks Hrz4 (`CONFLICTSPAD_QUALITY_URL`); the offline smoke mode never promotes. |
-| Traces and the immutable audit sink | **Hrz5** agent observability | `AuditSinkPort` and `ObservabilityTracerPort`; `OTEL_EXPORTER_OTLP_ENDPOINT` selects the Hrz5 collector. |
-| Agent discovery and entitlements | **Hrz3** agent registry | this agent publishes a card; the registry owns discovery. |
-| Prompt-injection defence and output filtering | **Hrz1** agent guardrail gateway | **not wired today.** It becomes mandatory the moment untrusted declaration narrative reaches the model (rule R1). |
-| Grounded retrieval over an enterprise corpus | **Hrz2** enterprise knowledge base | not wired today; nothing here retrieves. |
+| The restricted list, dealing blackouts and MNPI holdings | **`conflicts-gifts-pad-register` (this repo)** | OWNED here, schema and all (`domain/reference_models.py`), and served with an `as_of` over `GET /v1/reference/snapshot`. |
+| Trade and communications surveillance, market-abuse investigation | `trade-comms-surveillance` trade and comms surveillance (`trade-comms-surveillance`) | it CONSUMES this repo's reference snapshot over A2A. This repo screens declarations; it does not watch order flow or chat. |
+| Human review and maker-checker | `human-review-console` human review console | `ReviewRouterPort` over the shared `review-kit` (`HUMAN_REVIEW_URL`). This repo produces escalations; it does not render a queue. |
+| Model and agent promotion | `model-quality-gate` AI quality and model risk | `eval/run_eval.py --mode gate` asks `model-quality-gate` (`CONFLICTSPAD_QUALITY_URL`); the offline smoke mode never promotes. |
+| Traces and the immutable audit sink | `agent-observability` agent observability | `AuditSinkPort` and `ObservabilityTracerPort`; `OTEL_EXPORTER_OTLP_ENDPOINT` selects the `agent-observability` collector. |
+| Agent discovery and entitlements | `agent-registry` | this agent publishes a card; the registry owns discovery. |
+| Prompt-injection defence and output filtering | `agent-guardrail-gateway` agent guardrail gateway | **not wired today.** It becomes mandatory the moment untrusted declaration narrative reaches the model (rule R1). |
+| Grounded retrieval over an enterprise corpus | `enterprise-knowledge-base` | not wired today; nothing here retrieves. |
 
 ### Can I demo it without a cloud project?
 
@@ -90,5 +90,5 @@ The honest list is [`../practices-audit.md`](../practices-audit.md) and the `TOD
 rows in [`../../COMPLIANCE.md`](../../COMPLIANCE.md). The three that matter most for a production
 decision: the managed store and feed adapters are still construction-only (they are listed in
 `managed_readiness.py`, and the Terraform refuses to plan a serving edge while that list is
-non-empty), the Hrz1 guardrail binding is unwired, and this repo's metric bundle is not yet
-registered with Hrz4 so `--mode gate` has no authority to ask.
+non-empty), the `agent-guardrail-gateway` binding is unwired, and this repo's metric bundle is not yet
+registered with `model-quality-gate` so `--mode gate` has no authority to ask.

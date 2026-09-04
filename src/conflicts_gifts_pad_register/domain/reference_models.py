@@ -1,10 +1,10 @@
 """The restricted-list / blackout-window / MNPI reference model (pure stdlib).
 
-This is the reference data Cmp1 (``trade-comms-surveillance``) reads over A2A, so its shape
-is authoritative here: the OWNER of the data owns its schema. Every entry carries an effective
-window, and a :class:`ReferenceSnapshot` is the set of entries whose window COVERS a given
-``as_of`` date. Replaying the same ``as_of`` therefore reproduces the same snapshot byte for
-byte, which is what makes screening reproducible and an audit defensible.
+This is the reference data trade-comms-surveillance (``trade-comms-surveillance``) reads over A2A,
+so its shape is authoritative here: the OWNER of the data owns its schema. Every entry carries an
+effective window, and a :class:`ReferenceSnapshot` is the set of entries whose window COVERS a given
+``as_of`` date. Replaying the same ``as_of`` therefore reproduces the same snapshot byte for byte,
+which is what makes screening reproducible and an audit defensible.
 
 Nothing here imports a web framework or a cloud SDK: a snapshot is a value the deterministic
 engine reasons over, and the store adapter (``ports/reference_store.py``) is the only thing that
@@ -81,7 +81,8 @@ class MnpiHolding:
 
 @dataclass(frozen=True, slots=True)
 class ReferenceSnapshot:
-    """The reference data effective at one ``as_of`` date: the atom Cmp1 reads and screening uses.
+    """The reference data effective at one ``as_of`` date: the atom trade-comms-surveillance reads
+    and screening uses.
 
     Constructed already filtered to ``as_of`` by :meth:`from_entries`, so the lookups below are
     exact-match membership and never re-check a window. That keeps the byte-identical replay

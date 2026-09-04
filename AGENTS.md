@@ -7,7 +7,7 @@ here. Read it first. This file carries only what is specific to this one.
 
 ## What this is
 
-Conflicts, Gifts and PAD Register (Rgc11): Conflicts, gifts and personal-account-dealing register with deterministic screening.
+Conflicts, Gifts and PAD Register (`conflicts-gifts-pad-register`): Conflicts, gifts and personal-account-dealing register with deterministic screening.
 Rendered from `hex-service-template`, so it starts at reference parity rather than converging
 toward it. Package `conflicts_gifts_pad_register`, environment prefix
 `CONFLICTSPAD`, region `asia-southeast1`.

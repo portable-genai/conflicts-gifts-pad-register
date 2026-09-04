@@ -76,7 +76,8 @@ class AssessResponse(BaseModel):
     decision: str
     summary: str
     requires_human_review: bool
-    #: Where the escalation WENT (rule R8): the Hrz7 review id, or the local queue reference.
+    #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
+    #: reference.
     #: Empty only when the assessment did not escalate.
     review_ref: str = ""
     findings: list[FindingModel] = []
@@ -115,7 +116,7 @@ class ReferenceEntryModel(BaseModel):
 
 
 class ReferenceSnapshotResponse(BaseModel):
-    """The as-of restricted / blackout / MNPI snapshot Cmp1 reads over A2A."""
+    """The as-of restricted / blackout / MNPI snapshot trade-comms-surveillance reads over A2A."""
 
     as_of: str
     restricted: list[ReferenceEntryModel] = []
