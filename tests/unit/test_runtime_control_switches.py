@@ -283,3 +283,14 @@ def test_the_cli_reports_the_hand_off(
     monkeypatch.setenv(REVIEW_ROUTING_ENV, "off")
     assert cli.main(["screen", "--tenant", "demo-bank"]) == 0
     assert "human review hand-off : off" in capsys.readouterr().out
+
+
+def test_a_read_of_a_stored_record_claims_no_hand_off() -> None:
+    """The hand-off belonged to the producing request; a read must not say ``not_required``."""
+    produced = _call(_ESCALATING)
+    read = TestClient(app, client=_LOOPBACK).get(
+        f"/v1/register/{produced['declaration_id']}", headers=_HEADERS
+    )
+    assert read.status_code == 200, read.text
+    assert read.json()["requires_human_review"] is True
+    assert read.json()["review_routing"] is None

@@ -82,8 +82,10 @@ class AssessResponse(BaseModel):
     #: reference. Empty exactly when ``review_routing`` is not ``routed``.
     review_ref: str = ""
     #: What happened to the hand-off: routed, failed, off or not_required. ``failed`` means the
-    #: result is NOT queued for review, and the console says so.
-    review_routing: Literal["routed", "failed", "off", "not_required"] = "not_required"
+    #: result is NOT queued for review, and the console says so. ``None`` on a READ of a stored
+    #: register record: the hand-off belonged to the request that produced it, and a read that
+    #: said ``not_required`` about a flagged declaration would be a false statement.
+    review_routing: Literal["routed", "failed", "off", "not_required"] | None = None
     findings: list[FindingModel] = []
     citations: list[CitationModel] = []
 
@@ -93,7 +95,7 @@ class AssessResponse(BaseModel):
         result: ConflictAssessment,
         *,
         review_ref: str = "",
-        review_routing: str = "not_required",
+        review_routing: str | None = None,
     ) -> AssessResponse:
         return cls(
             declaration_id=result.declaration_id,
