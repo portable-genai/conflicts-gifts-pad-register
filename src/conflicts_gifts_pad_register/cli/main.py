@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 
+from ..adapters.controls import RecordingReviewRouter
 from ..assembly import assessment_service
 
 
@@ -28,12 +29,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{result.declaration_id}: {result.verdict.value} ({result.severity.value})")
             for finding in result.screening.findings:
                 print(f"  fired {finding.rule_id}: {finding.reason}")
-            if result.requires_human_review:
-                # Rule R8 on the CLI path too: the same escalation, the same router.
-                ref = container.review_router.route(
-                    result, maker=args.actor, tenant=declaration.tenant
-                )
-                print(f"  routed to human review: {ref}")
+            # Rule R8 on the CLI path too: the same escalation, the same router.
+            routing = RecordingReviewRouter(container.review_router)
+            ref = routing.route(result, maker=args.actor, tenant=declaration.tenant)
+            print(f"  human review hand-off : {routing.outcome.value} {ref}".rstrip())
         return 0
 
     return 2  # pragma: no cover - argparse requires a subcommand

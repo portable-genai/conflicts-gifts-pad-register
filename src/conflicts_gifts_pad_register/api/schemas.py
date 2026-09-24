@@ -7,6 +7,8 @@ body is ignored, which is the whole point of server-side identity.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from ..domain.models import ConflictAssessment, Declaration, DeclarationKind, Instrument
@@ -77,14 +79,22 @@ class AssessResponse(BaseModel):
     summary: str
     requires_human_review: bool
     #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
-    #: reference.
-    #: Empty only when the assessment did not escalate.
+    #: reference. Empty exactly when ``review_routing`` is not ``routed``.
     review_ref: str = ""
+    #: What happened to the hand-off: routed, failed, off or not_required. ``failed`` means the
+    #: result is NOT queued for review, and the console says so.
+    review_routing: Literal["routed", "failed", "off", "not_required"] = "not_required"
     findings: list[FindingModel] = []
     citations: list[CitationModel] = []
 
     @classmethod
-    def from_domain(cls, result: ConflictAssessment, *, review_ref: str = "") -> AssessResponse:
+    def from_domain(
+        cls,
+        result: ConflictAssessment,
+        *,
+        review_ref: str = "",
+        review_routing: str = "not_required",
+    ) -> AssessResponse:
         return cls(
             declaration_id=result.declaration_id,
             subject=result.subject,
@@ -96,6 +106,7 @@ class AssessResponse(BaseModel):
             summary=result.summary,
             requires_human_review=result.requires_human_review,
             review_ref=review_ref,
+            review_routing=review_routing,  # type: ignore[arg-type]
             findings=[
                 FindingModel(rule_id=f.rule_id, reason=f.reason, severity=f.severity.value)
                 for f in result.screening.findings

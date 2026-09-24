@@ -29,8 +29,10 @@ A human, always. `requires_human_review` and the call to `ReviewRouterPort.route
 not a flag plus an intention: `api/app.py`, `cli/main.py` and `agent/tools.py` all route in the
 same call that produced the result, and `tests/unit/test_review_routing.py` asserts the routing
 rather than the flag. A CRITICAL band demands two approvals
-(`adapters/_review_payload.py`). Under the managed profile the router REFUSES when no console is
-configured, so a deployment cannot swallow an escalation silently.
+(`adapters/_review_payload.py`). Under the managed profile the service refuses to boot with
+routing on and no console configured, and a hand-off that fails at request time is reported as
+`review_routing: "failed"` and logged, so a deployment cannot swallow an escalation silently.
+`CONFLICTSPAD_REVIEW_ROUTING=off` switches routing off, stated and logged at startup.
 
 ### Where does the data live, and is residency enforced or just documented?
 
