@@ -40,9 +40,9 @@ Four things, and none of them is code here:
 3. **The inbound feeds.** `DeclarationFeedPort` (employee declarations, free text plus structured
    fields) and `BrokerageFeedPort` (personal-account trades and holdings, already structured).
    These are deliberately separate ports because they come from different systems of record.
-4. **The review console.** An `human-review-console` deployment reachable at `HUMAN_REVIEW_URL`. The managed
-   router REFUSES to swallow an escalation when this is empty, so a fork cannot ship rule R8
-   unwired and green.
+4. **The review console.** An `human-review-console` deployment reachable at `HUMAN_REVIEW_URL`. With routing on
+   and this empty, the managed profile REFUSES TO BOOT, so a fork cannot ship rule R8 unwired
+   and green; `CONFLICTSPAD_REVIEW_ROUTING=off` is the stated way to run without it.
 
 ### How do I add a new outbound dependency (a new port)?
 
