@@ -19,6 +19,17 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class LlmPort(Protocol):
-    def generate(self, prompt: str, *, schema: dict[str, object] | None = None) -> str:
-        """Return the model's completion for ``prompt`` (JSON text when ``schema`` is given)."""
+    def generate(
+        self,
+        prompt: str,
+        *,
+        schema: dict[str, object] | None = None,
+        temperature: float | None = None,
+    ) -> str:
+        """Return the model's completion for ``prompt`` (JSON text when ``schema`` is given).
+
+        ``temperature`` is the sampling for THIS call. ``None`` sends none at all (some models
+        reject the parameter, so free means absent, never ``1.0``). A call site pins ``0.0``
+        only where the output is extracted, classified or compared.
+        """
         ...

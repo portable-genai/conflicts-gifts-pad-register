@@ -158,7 +158,9 @@ class AssessmentService:
         deterministic = deterministic_summary(declaration, result, verdict, severity)
         prompt = self._prompt(declaration, result, verdict, deterministic)
         try:
-            raw = self._llm.generate(prompt, schema=_RATIONALE_SCHEMA)
+            # Narration restates a verdict the engine already fixed: it samples freely (no
+            # temperature sent), and an ungrounded draft is still discarded below.
+            raw = self._llm.generate(prompt, schema=_RATIONALE_SCHEMA, temperature=None)
         except Exception:
             return deterministic
         drafted = self._parse(raw)

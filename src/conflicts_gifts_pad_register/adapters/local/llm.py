@@ -19,7 +19,13 @@ from __future__ import annotations
 import json
 import re
 
+from hex_service_kit import provenance
+
 from ...config import Settings
+
+#: What this model answers as, for the console's model pill: the name ``generator_model``
+#: reports under ``local``, so the pill before and after an answer agree.
+STUB_MODEL = "deterministic-offline-stub"
 
 _ENTITY = re.compile(r"([A-Z][A-Za-z0-9]+(?: [A-Z][A-Za-z0-9]+)*) \(FICTIONAL\)")
 
@@ -30,7 +36,14 @@ class LocalLlmAdapter:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
 
-    def generate(self, prompt: str, *, schema: dict[str, object] | None = None) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        schema: dict[str, object] | None = None,
+        temperature: float | None = None,
+    ) -> str:
+        provenance.note_model(STUB_MODEL)
         required = (schema or {}).get("required", [])
         wants = set(required) if isinstance(required, list) else set()
         if "rationale" in wants:
