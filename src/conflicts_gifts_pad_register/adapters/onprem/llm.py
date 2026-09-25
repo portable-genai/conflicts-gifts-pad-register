@@ -11,7 +11,13 @@ class OnPremLlmAdapter:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
 
-    def generate(self, prompt: str, *, schema: dict[str, object] | None = None) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        schema: dict[str, object] | None = None,
+        temperature: float | None = None,
+    ) -> str:
         raise NotImplementedError(
             "on-prem model gateway is a portability placeholder: bind the client's own hosted "
             "model (see docs/onprem-migration.md). Screening does not depend on it; narration does."

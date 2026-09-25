@@ -73,7 +73,8 @@ class IngestionService:
         fallback = declaration.counterparty.strip()
         prompt = self._prompt(declaration)
         try:
-            raw = self._llm.generate(prompt, schema=COUNTERPARTY_SCHEMA)
+            # Extraction: the resolved entity is compared against the register, so it is PINNED.
+            raw = self._llm.generate(prompt, schema=COUNTERPARTY_SCHEMA, temperature=0.0)
         except Exception:
             return fallback, False
         resolved = self._parse(raw)

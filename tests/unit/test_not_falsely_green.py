@@ -169,7 +169,13 @@ class _WrongEntityLlm:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
 
-    def generate(self, prompt: str, *, schema: dict[str, object] | None = None) -> str:
+    def generate(
+        self,
+        prompt: str,
+        *,
+        schema: dict[str, object] | None = None,
+        temperature: float | None = None,
+    ) -> str:
         return json.dumps({"counterparty": "Wrong Counterparty (FICTIONAL)"})
 
 
