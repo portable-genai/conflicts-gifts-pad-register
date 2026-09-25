@@ -28,6 +28,19 @@ function reviewRoutingOf(body: string): string | undefined {
   }
 }
 
+// The declaration kinds the register screens, as `DeclarationKind` in domain/models.py spells
+// them on the wire. An unlisted value is not a kind the API accepts, so the form offers only these.
+const KINDS: { value: string; label: string }[] = [
+  { value: "gift", label: "Gift" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "outside_interest", label: "Outside interest" },
+  { value: "political_donation", label: "Political donation" },
+  { value: "personal_account_deal", label: "Personal-account deal" },
+];
+
+// The kind that names an instrument; the restricted, blackout and MNPI rules screen its symbol.
+const PAD_KIND = "personal_account_deal";
+
 interface CardSummary {
   name?: string;
   description?: string;
@@ -36,9 +49,25 @@ interface CardSummary {
 
 export default function Home() {
   const [persona, setPersona] = useState(PERSONAS[0]);
-  const [subject, setSubject] = useState("Acme Holdings (FICTIONAL)");
-  const [text, setText] = useState("urgent data breach reported by the branch");
+  // A fictional declaration the local profile screens as-is: a trader's SGD 250.00 gift in SG,
+  // over the configured SGD 100.00 threshold, so it escalates and routes for human review.
+  const [id, setId] = useState("dec-console-0001");
+  const [employee, setEmployee] = useState("tan.trader@bank.example");
+  const [employeeRole, setEmployeeRole] = useState("trader");
+  const [market, setMarket] = useState("SG");
+  const [kind, setKind] = useState("gift");
+  const [description, setDescription] = useState(
+    "Dinner voucher received from Vega Supplies (FICTIONAL) after a deal closed.",
+  );
+  const [asOf, setAsOf] = useState("2026-08-08");
+  const [counterparty, setCounterparty] = useState("Vega Supplies (FICTIONAL)");
+  const [amountMinor, setAmountMinor] = useState("25000");
+  const [currency, setCurrency] = useState("SGD");
+  const [symbol, setSymbol] = useState("FICT");
+  const [instrumentName, setInstrumentName] = useState("Fictus Holdings (FICTIONAL)");
+  const [isin, setIsin] = useState("");
   const [result, setResult] = useState("");
+  const [registerEntry, setRegisterEntry] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [card, setCard] = useState<CardSummary | null>(null);
@@ -57,19 +86,50 @@ export default function Home() {
     };
   }, []);
 
+  // A result belongs to the persona that asked for it, so switching persona clears it.
+  useEffect(() => {
+    setResult("");
+    setRegisterEntry("");
+  }, [persona]);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setFailed(false);
+    setRegisterEntry("");
+    const headers = { "Content-Type": "application/json", "X-Dev-Persona": persona };
     try {
-      const response = await fetch(API + "/v1/triage", {
+      // The tenant and the actor are the verified principal's, so the body carries neither.
+      const response = await fetch(API + "/v1/assess", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Dev-Persona": persona },
-        body: JSON.stringify({ subject, text }),
+        headers,
+        body: JSON.stringify({
+          id,
+          employee,
+          employee_role: employeeRole,
+          market,
+          kind,
+          description,
+          as_of: asOf,
+          counterparty,
+          amount_minor: Number.parseInt(amountMinor, 10) || 0,
+          currency,
+          instrument:
+            kind === PAD_KIND && symbol.trim() ? { symbol, name: instrumentName, isin } : null,
+        }),
       });
       const body = await response.text();
       setFailed(!response.ok);
       setResult(body);
+      if (!response.ok) return;
+      // Read the entry back from the tenant-scoped register, which is what a reviewer sees.
+      const stored = await fetch(API + "/v1/register/" + encodeURIComponent(id), {
+        cache: "no-store",
+        headers: { "X-Dev-Persona": persona },
+      });
+      setRegisterEntry(
+        stored.ok ? await stored.text() : stored.status + " " + (await stored.text()),
+      );
     } catch (error) {
       setFailed(true);
       setResult(String(error));
@@ -83,7 +143,7 @@ export default function Home() {
       <h1>{card?.name ?? "Agent console"}</h1>
       <p className="sub">
         {card?.description ??
-          "Submit a case. The decision is deterministic, cited, and routed to a human reviewer when it escalates."}
+          "Screen a declaration. The verdict is deterministic, cited, and routed to a human reviewer when it escalates."}
       </p>
 
       <form onSubmit={submit}>
@@ -102,17 +162,78 @@ export default function Home() {
         </fieldset>
 
         <fieldset>
-          <legend>The case</legend>
+          <legend>The declaration</legend>
           <label>
-            Subject
-            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+            Declaration id
+            <input value={id} onChange={(event) => setId(event.target.value)} />
           </label>
+          <label>
+            Kind
+            <select value={kind} onChange={(event) => setKind(event.target.value)}>
+              {KINDS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Employee
+            <input value={employee} onChange={(event) => setEmployee(event.target.value)} />
+          </label>
+          <label>
+            Employee role
+            <input value={employeeRole} onChange={(event) => setEmployeeRole(event.target.value)} />
+          </label>
+          <label>
+            Market
+            <input value={market} onChange={(event) => setMarket(event.target.value)} />
+          </label>
+          <label>
+            Effective date (as of, YYYY-MM-DD)
+            <input value={asOf} onChange={(event) => setAsOf(event.target.value)} />
+          </label>
+          <label>
+            Counterparty
+            <input value={counterparty} onChange={(event) => setCounterparty(event.target.value)} />
+          </label>
+          <label>
+            Amount in minor units (cents)
+            <input
+              inputMode="numeric"
+              value={amountMinor}
+              onChange={(event) => setAmountMinor(event.target.value)}
+            />
+          </label>
+          <label>
+            Currency
+            <input value={currency} onChange={(event) => setCurrency(event.target.value)} />
+          </label>
+          {kind === PAD_KIND ? (
+            <>
+              <label>
+                Instrument symbol
+                <input value={symbol} onChange={(event) => setSymbol(event.target.value)} />
+              </label>
+              <label>
+                Instrument name
+                <input
+                  value={instrumentName}
+                  onChange={(event) => setInstrumentName(event.target.value)}
+                />
+              </label>
+              <label>
+                Instrument ISIN
+                <input value={isin} onChange={(event) => setIsin(event.target.value)} />
+              </label>
+            </>
+          ) : null}
           <label>
             Description
-            <textarea value={text} onChange={(event) => setText(event.target.value)} />
+            <textarea value={description} onChange={(event) => setDescription(event.target.value)} />
           </label>
           <button type="submit" disabled={busy}>
-            {busy ? "Working" : "Triage this case"}
+            {busy ? "Working" : "Screen this declaration"}
           </button>
         </fieldset>
       </form>
@@ -123,6 +244,12 @@ export default function Home() {
         </p>
       ) : null}
       {result ? <pre className={failed ? "result error" : "result"}>{result}</pre> : null}
+      {registerEntry ? (
+        <>
+          <p className="sub">Register entry, read back from GET /v1/register/{id}:</p>
+          <pre className="result">{registerEntry}</pre>
+        </>
+      ) : null}
 
       <footer>
         Synthetic, obviously fictional data only. Identity is resolved server-side and the
