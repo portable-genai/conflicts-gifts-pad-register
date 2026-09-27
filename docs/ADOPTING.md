@@ -160,9 +160,10 @@ already thin clients to them:
   not a dependency of it. It reads `GET /v1/reference/snapshot` with an `as_of` over S2S. Keep
   that feed stable, and do not build a second restricted-list store on the surveillance side.
 
-The guardrail gateway (`agent-guardrail-gateway`) is **not** integrated today. It becomes mandatory the moment
-untrusted free text (an employee-written declaration narrative, say) reaches the model: see rule
-R1 in [`../COMPLIANCE.md`](../COMPLIANCE.md). The enterprise knowledge base (`enterprise-knowledge-base`) is likewise
+The guardrail gateway (`agent-guardrail-gateway`) is bound through `GuardrailPort`: every prompt
+is screened before the model and every reply before it is used, with Model Armor on the managed
+profile (`infra/terraform/model_armor.tf`). See rule R1 in [`../COMPLIANCE.md`](../COMPLIANCE.md).
+The enterprise knowledge base (`enterprise-knowledge-base`) is likewise
 unwired, because nothing here retrieves.
 
 ## 6. Adoption checklist

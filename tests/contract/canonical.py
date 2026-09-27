@@ -31,6 +31,7 @@ from conflicts_gifts_pad_register.domain.kernel import (
     AuditEvent,
     Citation,
     Decision,
+    Direction,
     Severity,
 )
 
@@ -97,6 +98,14 @@ def _review_invoke(adapter: Any) -> Any:
 
 def _review_answered(adapter: Any, result: Any) -> bool:
     return bool(result) and len(adapter.outbox.pending()) == 1
+
+
+def _guardrail_invoke(adapter: Any) -> Any:
+    return adapter.screen(CANONICAL_PROMPT, Direction.INPUT)
+
+
+def _guardrail_answered(_adapter: Any, result: Any) -> bool:
+    return bool(getattr(result, "allowed", False)) and result.direction is Direction.INPUT
 
 
 def _llm_invoke(adapter: Any) -> Any:
@@ -179,6 +188,13 @@ CANONICAL_CALLS: dict[str, PortCase] = {
         # Rule R8: with no console configured the managed router must refuse, not swallow.
         managed_refusal=(RuntimeError,),
         detail="route one escalated assessment to human review",
+    ),
+    "guardrail": PortCase(
+        invoke=_guardrail_invoke,
+        answered=_guardrail_answered,
+        # The lazy `google.cloud.modelarmor_v1` import is the first thing the managed screen does.
+        managed_refusal=(ImportError,),
+        detail="screen a generation call's input or output (rule R1)",
     ),
     "llm": PortCase(
         invoke=_llm_invoke,

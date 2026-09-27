@@ -153,6 +153,16 @@ not fail the request: the response carries `review_routing: "failed"` and an emp
 the failure is logged, and the console says the declaration is not queued for review. Terraform
 states the switch as `review_routing_enabled`.
 
+`CONFLICTSPAD_GUARDRAIL` switches the guardrail (rule R1) the same three-state way. On (the
+default), every prompt is screened before the model and every reply before it is used; under
+the managed profile that is the regional Model Armor template named by
+`model_armor.template_id` in `config/settings.yaml`, and the service refuses to boot with the
+guardrail on and no template named. A refused screen, including a Model Armor error or a call
+past `model_armor.timeout_seconds`, falls back to the deterministic value and writes an audit
+row with `decision: "blocked"`; the `guardrail_blocks` metric counts those rows when
+`posture_alerts_enabled` is true. Off logs one warning at startup and screens nothing.
+Terraform states the switch as `guardrail_enabled`.
+
 ## Supply chain
 Installs come from the committed lockfiles. After changing a dependency run `make lock` and commit
 both files, then `make audit` (`pip-audit` over both locks). CI runs the same audit as a hard

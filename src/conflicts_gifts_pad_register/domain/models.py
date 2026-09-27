@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 
 from hex_service_kit.enums import LenientStrEnum
 
-from .kernel import Citation, Decision, Severity
+from .kernel import Citation, Decision, GuardrailRefusal, Severity
 
 
 class DeclarationKind(LenientStrEnum):
@@ -96,6 +96,9 @@ class NormalizedDeclaration:
     amount_minor: int
     instrument: Instrument | None
     model_resolved: bool
+    #: Every guardrail refusal of the resolution call (rule R1), for the orchestrator to audit
+    #: ``Decision.BLOCKED``. Non-empty only when the fallback was used BECAUSE of a refusal.
+    guardrail_refusals: tuple[GuardrailRefusal, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)

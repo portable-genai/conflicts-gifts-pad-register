@@ -12,7 +12,14 @@ The pipeline for one declaration:
 
 The model has no say in the verdict, the severity or whether review is required. Its narration is
 accepted only when it is GROUNDED in the engine's findings (no invented figure), and otherwise a
-deterministic summary is used. Routing to human-review-console (rule R8) happens on the driving
+deterministic summary is used.
+
+Rule R1: every generation call is screened INPUT before (the prompt as sent) and OUTPUT after
+(the raw reply, before it is parsed or grounded), in ingestion and in narration alike. Both
+calls are optional by design, each with a deterministic fallback, so a refused screen (a block,
+or a guardrail that could not decide) discards that model step, uses the fallback, and is
+audited on its own ``Decision.BLOCKED`` row before the assessment's row. The refused text is
+never used and never recorded. Routing to human-review-console (rule R8) happens on the driving
 surfaces (API, CLI, agent), in the same call that produced the result, exactly as the reference
 build does.
 
@@ -28,12 +35,14 @@ from typing import Any
 from pii_kit import redact
 
 from ..ports.audit import AuditSinkPort
+from ..ports.guardrail import GuardrailPort
 from ..ports.llm import LlmPort
 from ..ports.observability import ObservabilityTracerPort
 from ..ports.reference_store import ReferenceStorePort
 from ..screening_pack import ScreeningPack
+from .guardrail_screen import screen_text
 from .ingestion_service import IngestionService
-from .kernel import AuditEvent, Decision, Severity, utcnow
+from .kernel import AuditEvent, Decision, Direction, GuardrailRefusal, Severity, utcnow
 from .models import (
     AssessmentVerdict,
     ConflictAssessment,
@@ -56,6 +65,9 @@ _NUMBER = re.compile(r"\d+")
 #: One span per assessed declaration. Structural attributes only: see :meth:`.assess`.
 _ASSESS_SPAN = "conflicts_register.assess"
 
+#: The step name a refusal of the narration call is audited under.
+NARRATE_STEP = "narration"
+
 
 class AssessmentService:
     """Assess one declaration into a cited, human-reviewed conflict assessment."""
@@ -66,6 +78,7 @@ class AssessmentService:
         reference_store: ReferenceStorePort,
         audit: AuditSinkPort,
         llm: LlmPort,
+        guardrail: GuardrailPort,
         pack: ScreeningPack,
         tracer: ObservabilityTracerPort,
         engine: ScreeningEngine | None = None,
@@ -74,6 +87,7 @@ class AssessmentService:
         self._reference = reference_store
         self._audit = audit
         self._llm = llm
+        self._guardrail = guardrail
         self._pack = pack
         self._tracer = tracer
         self._engine = engine or ScreeningEngine()
@@ -105,12 +119,17 @@ class AssessmentService:
             decision = Decision.ESCALATED if flagged else Decision.ALLOWED
 
             citations = (ScreeningEngine.subject_citation(result), *result.citations)
-            summary = self._narrate(declaration, result, verdict, severity)
+            summary, narration_refusals = self._narrate(declaration, result, verdict, severity)
 
             subject = (
                 f"{declaration.employee} / "
                 f"{normalized.counterparty_entity or declaration.kind.value}"
             )
+
+            # Every refused generation call is audited BLOCKED first, on its own row: the
+            # assessment below completed on deterministic text, and these say why it had to.
+            for refusal in (*normalized.guardrail_refusals, *narration_refusals):
+                self._audit_blocked(refusal, actor=actor, severity=severity)
 
             # Redact BEFORE the audit write: no employee name, counterparty or identifier from
             # the declaration text reaches the WORM record. The raw declaration text is included
@@ -154,21 +173,61 @@ class AssessmentService:
         result: ScreeningResult,
         verdict: AssessmentVerdict,
         severity: Severity,
-    ) -> str:
+    ) -> tuple[str, tuple[GuardrailRefusal, ...]]:
+        """Return ``(summary, refusals)``: the grounded draft, or the deterministic summary.
+
+        Rule R1: the prompt is screened INPUT before the call and the raw draft OUTPUT before it
+        is parsed or grounded, and each screen's text is the text used from then on. A refused
+        direction degrades to the deterministic summary exactly as an ungrounded or malformed
+        draft already does (the engine fixed the verdict, so narration is all that is at stake),
+        and the refusal is returned for the caller to audit.
+        """
         deterministic = deterministic_summary(declaration, result, verdict, severity)
-        prompt = self._prompt(declaration, result, verdict, deterministic)
+        prompt = screen_text(
+            self._guardrail,
+            self._prompt(declaration, result, verdict, deterministic),
+            Direction.INPUT,
+            step=NARRATE_STEP,
+        )
+        if isinstance(prompt, GuardrailRefusal):
+            return deterministic, (prompt,)
         try:
             # Narration restates a verdict the engine already fixed: it samples freely (no
             # temperature sent), and an ungrounded draft is still discarded below.
             raw = self._llm.generate(prompt, schema=_RATIONALE_SCHEMA, temperature=None)
         except Exception:
-            return deterministic
-        drafted = self._parse(raw)
+            return deterministic, ()
+        reply = screen_text(self._guardrail, raw, Direction.OUTPUT, step=NARRATE_STEP)
+        if isinstance(reply, GuardrailRefusal):
+            return deterministic, (reply,)
+        drafted = self._parse(reply)
         if drafted is None or not is_grounded(drafted, result):
             # A malformed or ungrounded narration is discarded: the deterministic summary, built
             # from the engine's own findings, is always grounded.
-            return deterministic
-        return drafted
+            return deterministic, ()
+        return drafted, ()
+
+    def _audit_blocked(self, refusal: GuardrailRefusal, *, actor: str, severity: Severity) -> None:
+        """Audit one refused generation call ``BLOCKED`` (rule R1/R2).
+
+        Never carries the refused text, nor the declaration's subject or description (either may
+        be the very thing refused): only which step was refused, in which direction, and why.
+        """
+        self._audit.record(
+            AuditEvent(
+                action="assess",
+                actor=actor,
+                decision=Decision.BLOCKED,
+                severity=severity,
+                redacted_summary=redact(
+                    f"{refusal.step} blocked ({refusal.direction.value}): {refusal.reason}; "
+                    "deterministic text used instead",
+                    PII_PATTERNS,
+                ),
+                citations=(),
+                timestamp=utcnow(),
+            )
+        )
 
     @staticmethod
     def _prompt(

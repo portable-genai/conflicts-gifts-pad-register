@@ -26,6 +26,10 @@ deployment accordingly: see the exposure section of [runbook.md](runbook.md).
      a consequential result must still reach a human, so this placeholder RAISES rather than
      returning quietly. An adapter that dropped the escalation would leave the service
      auto-executing with the appearance of review.
+   - `GuardrailPort` -> the client's own prompt and response screening. Rule R1 does not relax
+     on exit either, so this placeholder RAISES; the domain reads a raise as a refusal, skips
+     the model step, uses the deterministic fallback and audits the refusal `blocked`, so an
+     on-prem deployment with the placeholder bound never sends an unscreened prompt.
 3. Bind the new adapters under `onprem` in `config/settings.yaml` (and in
    `config.DEFAULT_BINDINGS`, which the settings test holds equal to it) and run the gate.
 

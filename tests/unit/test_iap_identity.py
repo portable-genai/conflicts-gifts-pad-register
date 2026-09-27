@@ -452,6 +452,11 @@ _REBOUND_SETTINGS = "\n".join(
             f"    {p}: {_PKG}.adapters.local.llm:LocalLlmAdapter"
             for p in ("local", "gcp", "onprem")
         ],
+        "  guardrail:",
+        *[
+            f"    {p}: {_PKG}.adapters.local.guardrail:LocalHeuristicGuardrailAdapter"
+            for p in ("local", "gcp", "onprem")
+        ],
         "  declaration_feed:",
         *[
             f"    {p}: {_PKG}.adapters.local.declarations:LocalDeclarationFeed"

@@ -80,6 +80,12 @@ production_edge_enabled = false
 # Cheap runtime control, on in the reference; false runs without routing and needs no console.
 review_routing_enabled = true
 
+# Rule R1: the guardrail, on in the reference. Some regions do not serve the malicious-URI
+# filter and multi-language detection (model_armor.tf); set model_armor_full_capabilities =
+# false there and disclose the narrowed guardrail rather than fail every apply.
+guardrail_enabled             = true
+# model_armor_full_capabilities = false
+
 # Rule R5 and rule R2: the model-quality-gate promotion authority and the agent-observability collector. Leave a
 # variable out entirely rather than setting it to an empty string; empty is read as a
 # deliberate "no authority named" and refuses.

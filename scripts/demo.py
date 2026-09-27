@@ -831,6 +831,10 @@ def _exit_llm(container: Any) -> Any:
     return container.llm.generate("narrate", schema={"required": ["rationale"]})
 
 
+def _exit_guardrail(container: Any) -> Any:
+    return container.guardrail.screen("identify the counterparty", kernel.Direction.INPUT)
+
+
 def _exit_identity(container: Any) -> Any:
     # The persona header is deliberately present. It is what the OFFLINE family answers, so
     # sending it proves the exit family refuses the call itself rather than merely lacking an
@@ -862,6 +866,7 @@ EXIT_CALLS: dict[str, Callable[[Any], Any]] = {
     "tracer": _exit_tracer,
     "evaluation": _exit_evaluation,
     "llm": _exit_llm,
+    "guardrail": _exit_guardrail,
     "declaration_feed": _exit_declaration,
     "brokerage_feed": _exit_brokerage,
     "reference_store": _exit_reference,
