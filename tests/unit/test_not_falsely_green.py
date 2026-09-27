@@ -29,6 +29,7 @@ import run_eval as ev
 from agent_eval_kit import assert_can_go_red, assert_each_can_go_red
 
 from conflicts_gifts_pad_register.adapters.local.audit import LocalAuditAdapter
+from conflicts_gifts_pad_register.adapters.local.guardrail import LocalHeuristicGuardrailAdapter
 from conflicts_gifts_pad_register.adapters.local.llm import LocalLlmAdapter
 from conflicts_gifts_pad_register.adapters.local.reference_store import LocalReferenceStore
 from conflicts_gifts_pad_register.assembly import build_assessment_service
@@ -131,7 +132,7 @@ def test_the_scan_excludes_the_actor_so_it_can_ever_be_green() -> None:
 # --------------------------------------------------------------------------- #
 _SNAPSHOT = LocalReferenceStore(_SETTINGS).snapshot(sample_cases.AS_OF)
 _PACK = pack_for()
-_INGESTION = IngestionService(LocalLlmAdapter(_SETTINGS))
+_INGESTION = IngestionService(LocalLlmAdapter(_SETTINGS), LocalHeuristicGuardrailAdapter(_SETTINGS))
 
 #: One symbol that IS restricted and one adversarial near-miss that is NOT. Exact match keeps the
 #: near-miss out; the wildcard mutant lets it in.
@@ -180,7 +181,9 @@ class _WrongEntityLlm:
 
 
 def _extraction_accuracy(llm: Any) -> float:
-    resolved = IngestionService(llm).normalize(sample_cases.FLAGGED_DECLARATION)
+    resolved = IngestionService(llm, LocalHeuristicGuardrailAdapter(_SETTINGS)).normalize(
+        sample_cases.FLAGGED_DECLARATION
+    )
     return 1.0 if resolved.counterparty_entity == "Vega Supplies (FICTIONAL)" else 0.0
 
 

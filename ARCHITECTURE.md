@@ -22,12 +22,14 @@ startup and Terraform serving authorization until its live integration test exis
   selection + order), `screening_engine.py` (the deterministic engine), `assessment_service.py`
   (the orchestration), `tenancy.py` (the one definition of tenant isolation, read and write),
   `errors.py`.
-- `ports/` : `@runtime_checkable` Protocols (`AuditSinkPort`, `ReviewRouterPort`; identity uses
-  the commons `IdentityPort`), re-exported once with the `PORT_PROTOCOLS` map. `identity.py` adds
-  this service's own identity vocabulary: what an adapter DECLARES about the end-user
-  authentication it provides (`VERIFIED` / `CLIENT_ASSERTED` / `UNIMPLEMENTED`), which is what the
-  loopback exposure guard reads, plus the refusal type that carries a status and a reason when no
-  end user can be authenticated at all.
+- `ports/` : `@runtime_checkable` Protocols (`AuditSinkPort`, `GuardrailPort`, `ReviewRouterPort`;
+  identity uses the commons `IdentityPort`), re-exported once with the `PORT_PROTOCOLS` map.
+  `guardrail.py` screens both generation calls this service makes INPUT before the model and
+  OUTPUT before the reply is used (rule R1); `identity.py` adds this service's own identity
+  vocabulary: what an adapter DECLARES about the end-user authentication it provides (`VERIFIED`
+  / `CLIENT_ASSERTED` / `UNIMPLEMENTED`), which is what the loopback exposure guard reads, plus
+  the refusal type that carries a status and a reason when no end user can be authenticated at
+  all.
 - `adapters/{local,gcp,onprem}/` : one adapter per port per profile. GCP imports are lazy.
   `adapters/_review_payload.py` is the shared, redacted conversion to the review kit's wire shape.
 - `config.py` : `Settings` + `Container` (lazy DI, dotted `module:Class` bindings loaded from
@@ -60,17 +62,25 @@ live service; marked so the offline gate deselects the whole directory) and `fix
 data only). `contract/canonical.py` holds ONE canonical request per port, so the structural and
 behavioural suites cannot quietly assert different things.
 
-## Request pipeline (`TriageService.triage`, then the caller)
-redact-before-audit (P-04) -> deterministic severity band -> soft escalation (P-06) -> already
-redacted WORM audit write -> **route the escalation to `human-review-console` (R8)**. The audit actor and the
-review maker are both the verified `Principal`, never the request body. Routing happens in the
-same request that produced the result, on the API and CLI surfaces alike, so an escalation never
-depends on a later job that may not exist.
+## Request pipeline (`AssessmentService.assess`, then the caller)
+normalize (deterministic amount/date/instrument; **guardrail screen INPUT/OUTPUT (R1)** around
+the model-resolved counterparty, refused -> deterministic fallback) -> reference snapshot at
+as-of -> deterministic screening (verdict FIXED by the engine) -> **guardrail screen
+INPUT/OUTPUT (R1)** around the narrated rationale, refused -> deterministic summary -> one
+`blocked` audit row per refused screen -> redact-before-audit (P-04) -> already redacted WORM
+audit write -> **route the escalation to `human-review-console` (R8)**. Neither guardrail screen
+can change the verdict, the severity or whether review is required: both wrap enrichment-only
+generation calls, so a refusal (a block, or a guardrail that could not decide) degrades to the
+same deterministic value a parse failure already produces, never a partial or failed
+assessment, and is audited without the refused text. The audit actor and the review maker are both the verified `Principal`, never the
+request body. Routing happens in the same request that produced the result, on the API and CLI
+surfaces alike, so an escalation never depends on a later job that may not exist.
 
 ## The port table
 | Port | local | gcp | onprem |
 |---|---|---|---|
 | `AuditSinkPort` | hash-chained SQLite WORM (commons) | Cloud Logging WORM (lazy) | placeholder |
+| `GuardrailPort` | heuristic prompt-injection screen | regional Model Armor template (lazy) | placeholder |
 | `IdentityPort` | seeded personas (commons) | IAP assertion (lazy) | placeholder |
 | `ReviewRouterPort` | review-kit outbox (offline, inspectable) | `human-review-console` service intake over S2S | placeholder |
 

@@ -19,6 +19,7 @@ from .declarations import (
     BrokerageFeedPort,
     DeclarationFeedPort,
 )
+from .guardrail import GuardrailPort
 from .identity import (
     CLIENT_ASSERTED,
     END_USER_AUTH_ATTR,
@@ -43,6 +44,7 @@ PORT_PROTOCOLS: dict[str, type] = {
     "audit": AuditSinkPort,
     "identity": IdentityPort,
     "review_router": ReviewRouterPort,
+    "guardrail": GuardrailPort,
     "llm": LlmPort,
     "declaration_feed": DeclarationFeedPort,
     "brokerage_feed": BrokerageFeedPort,
@@ -66,6 +68,7 @@ __all__ = [
     "BrokerageFeedPort",
     "DeclarationFeedPort",
     "EndUserAuthUnavailableError",
+    "GuardrailPort",
     "IdentityPort",
     "LlmPort",
     "ReferenceStorePort",

@@ -8,6 +8,7 @@ and the effective-window replay that makes an as-of screening reproducible.
 
 from __future__ import annotations
 
+from conflicts_gifts_pad_register.adapters.local.guardrail import LocalHeuristicGuardrailAdapter
 from conflicts_gifts_pad_register.adapters.local.llm import LocalLlmAdapter
 from conflicts_gifts_pad_register.adapters.local.reference_store import LocalReferenceStore
 from conflicts_gifts_pad_register.config import Settings
@@ -20,7 +21,7 @@ from conflicts_gifts_pad_register.screening_pack import pack_for
 from tests.fixtures import sample_cases
 
 _SETTINGS = Settings(profile="local")
-_INGESTION = IngestionService(LocalLlmAdapter(_SETTINGS))
+_INGESTION = IngestionService(LocalLlmAdapter(_SETTINGS), LocalHeuristicGuardrailAdapter(_SETTINGS))
 _STORE = LocalReferenceStore(_SETTINGS)
 _PACK = pack_for()
 _ENGINE = ScreeningEngine()

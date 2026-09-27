@@ -16,13 +16,14 @@ from .screening_pack import pack_for
 
 def build_assessment_service(container: Container) -> AssessmentService:
     """Wire the ingestion and screening pipeline over the container's bound ports."""
-    ingestion = IngestionService(container.llm)
+    ingestion = IngestionService(container.llm, container.guardrail)
     pack = pack_for(container.settings.screening_pack_path)
     return AssessmentService(
         ingestion=ingestion,
         reference_store=container.reference_store,
         audit=container.audit,
         llm=container.llm,
+        guardrail=container.guardrail,
         pack=pack,
         tracer=container.tracer,
     )

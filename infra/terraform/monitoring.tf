@@ -8,7 +8,7 @@
 #
 # Every filter below names a field this deployment actually emits:
 #   - critical_escalations : the managed audit adapter writes AuditEvent as a struct payload,
-#     so jsonPayload.decision is "escalated" or "allowed" (domain/kernel.py Decision) and
+#     so jsonPayload.decision is "escalated", "allowed" or "blocked" (domain/kernel.py Decision) and
 #     jsonPayload.severity carries the band. A critical escalation is a maker-checker event a
 #     reviewer has to see; the deterministic core decided it, so it is never noise.
 #   - sa_key_creation : an exportable service-account key was created. Org policy should have
@@ -17,10 +17,10 @@
 #     to decide whether enforcing would break a legitimate path.
 #   - cmek_changes : a CMEK key destroy or update. Key material changing is a P-09 event.
 #   - edge_denials : Cloud Armor denied or throttled a request at the edge.
-#
-# There is deliberately no guardrail-block metric. A rendered repo binds no guardrail port yet
-# (COMPLIANCE rule R1 records that as owed), and a metric whose filter can never match is a
-# green light nobody earned. Add it in the same commit that binds the guardrail.
+#   - guardrail_blocks : the guardrail (rule R1) refused a generation call. The domain audits
+#     each refusal on its own row with jsonPayload.decision "blocked" (domain/kernel.py
+#     Decision.BLOCKED); a run of them is an injection attempt or a guardrail that cannot
+#     decide (Model Armor unreachable), and either is worth a look.
 #
 # Alert policies are always created; var.alert_notification_channels attaches the channels.
 #
@@ -47,6 +47,10 @@ locals {
     edge_denials = {
       description = "Cloud Armor denied or throttled a request at the serving edge"
       filter      = "resource.type=\"http_load_balancer\" AND jsonPayload.enforcedSecurityPolicy.outcome=\"DENY\""
+    }
+    guardrail_blocks = {
+      description = "Guardrail refused a generation call, recorded in the app audit log (rule R1)"
+      filter      = "logName=\"projects/${var.project_id}/logs/${local.audit_log_name}\" AND jsonPayload.decision=\"blocked\""
     }
   }
 }

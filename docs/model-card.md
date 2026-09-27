@@ -69,10 +69,12 @@ would stop exercising the grounding check the managed path depends on.
   stub bound against the golden cases, including `extraction_accuracy` for the entity resolution
   and `groundedness` for the rationale. Add a managed-profile run, registered with the `model-quality-gate`
   promotion gate (P-08, rule R5), that scores the same metrics with the real model bound.
-- **Prompt-injection screening** (rule R1): the `agent-guardrail-gateway` is not bound. An employee
-  writes the declaration narrative the entity prompt is built from, so that text is untrusted
-  input by definition. Screen it before it reaches `IngestionService`, and fail closed to the
-  structured field when the screen is unavailable.
+- **Prompt-injection screening** (rule R1): bound. Both prompts are screened before the model
+  and both replies before they are used (`ports/guardrail.py`; Model Armor on the managed
+  profile). A refusal, or a screen that cannot decide, falls back to the structured field or the
+  deterministic summary and is audited `blocked`. What remains is operational: the Model Armor
+  template has never been applied, and a region that does not serve the malicious-URI filter
+  and multi-language detection must set `model_armor_full_capabilities = false` and disclose it.
 - **Reasoning trace**: `COMPLIANCE.md` P-07 records that a model's reasoning trace should be
   audited alongside its output. Today the audit record carries the redacted summary and its
   citations, not the prompt and reply pair.

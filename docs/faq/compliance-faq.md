@@ -91,7 +91,7 @@ identical. The offline eval (`eval/run_eval.py --mode smoke`) scores `decision_a
 labelled oracle rather than the pipeline's verdict. What is NOT yet in place: the managed adapter
 names `gemini-3.5-flash` as a literal rather than a confirmed and configurable pin, there is no
 token budget, rate limit or kill switch, no live-model eval run has been registered with the `model-quality-gate`
-promotion gate, and prompt-injection screening through `agent-guardrail-gateway` is not bound. Until those close, the
+promotion gate. Until those close, the
 managed model path is not production-cleared and the deterministic path is what should be relied
 on.
 

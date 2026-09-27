@@ -64,8 +64,9 @@ rationale for an ALREADY-FIXED verdict. The entity reply is validated against
 `COUNTERPARTY_SCHEMA` and DISCARDED on any failure, falling back to the structured
 `counterparty` field, so a bad reply changes an enrichment label and never a screening input.
 The rationale is checked by `is_grounded` (`domain/assessment_service.py`) and replaced with the
-deterministic summary if it invents a figure. Prompt-injection screening through the `agent-guardrail-gateway` is **not** wired yet, so untrusted declaration narratives should be treated as
-hostile input until it is (rule R1 in `COMPLIANCE.md`).
+deterministic summary if it invents a figure. Both prompts are screened for prompt injection
+before the model, and both replies before they are used (rule R1 in `COMPLIANCE.md`); a refusal
+falls back to the deterministic value and is audited `blocked`.
 
 ### How is the audit trail protected?
 
@@ -92,7 +93,7 @@ a regular expression cannot tell apart.
 
 - **Login.** This repo authenticates nobody itself: the platform in front of it does, and the UI
   forwards the assertion without parsing or trusting a parsed copy.
-- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; not bound yet.
+- **Injection defence and output filtering.** Owned by `agent-guardrail-gateway`; bound through `GuardrailPort` (Model Armor on the managed profile).
 - **The review queue.** Owned by `human-review-console`; this repo produces escalations and routes them.
 - **Trade and communications surveillance.** Owned by `trade-comms-surveillance`. This repo publishes the reference
   snapshot it screens against; it does not watch order flow or chat.

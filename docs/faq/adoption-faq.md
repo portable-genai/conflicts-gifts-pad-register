@@ -104,7 +104,7 @@ for your policy is an adoption step.
 
 [`../practices-audit.md`](../practices-audit.md) carries the per-check verdict and the work list.
 The three that matter most before production: implementing the managed store and feed adapters
-(nothing deploys until `managed_readiness.py` is empty), binding the `agent-guardrail-gateway`
-(needed before untrusted declaration narrative reaches the model), and registering this repo's
+(nothing deploys until `managed_readiness.py` is empty), applying the Model Armor template the
+bound guardrail calls (`infra/terraform/model_armor.tf`), and registering this repo's
 metric bundle with `model-quality-gate` so `eval/run_eval.py --mode gate` has an authority to ask. The Terraform
 stack is written, validated and tested against a mocked provider; it has never been applied.

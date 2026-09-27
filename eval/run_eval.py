@@ -115,7 +115,7 @@ def run_smoke(dataset: Path) -> EvalReport:
     cases = _load(dataset)
     container = build_container(Settings(profile="local", audit_path=":memory:"))
     service = build_assessment_service(container)
-    ingestion = IngestionService(container.llm)
+    ingestion = IngestionService(container.llm, container.guardrail)
 
     decision: list[float] = []
     extraction: list[float] = []
